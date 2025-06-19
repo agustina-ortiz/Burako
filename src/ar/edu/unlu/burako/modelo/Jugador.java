@@ -80,8 +80,30 @@ public class Jugador implements IJugador, Serializable {
     }
 
     public void sacarCarta(Carta carta){
-        this.atril.remove(carta);
-         // si se quedó sin cartas y no tomo el muerto lo toma automaticamente
+        System.out.println("DEBUG Jugador: Intentando sacar " + carta.getNumero() + " " + carta.getColor());
+        System.out.println("DEBUG Jugador: Cartas en atril antes: " + atril.size());
+
+        boolean encontrada = false;
+        for (int i = 0; i < atril.size(); i++) {
+            Carta cartaAtril = atril.get(i);
+            if (cartaAtril.getNumero() == carta.getNumero() &&
+                    cartaAtril.getColor().equals(carta.getColor()) &&
+                    cartaAtril.esComodin() == carta.esComodin()) {
+
+                System.out.println("DEBUG Jugador: ¡Carta encontrada en posición " + i + "!");
+                atril.remove(i);
+                encontrada = true;
+                break;
+            }
+        }
+
+        if (!encontrada) {
+            System.out.println("DEBUG Jugador: ❌ NO se encontró la carta para eliminar");
+        }
+
+        System.out.println("DEBUG Jugador: Cartas en atril después: " + atril.size());
+
+        // si se quedó sin cartas y no tomo el muerto lo toma automaticamente
         if(atril.isEmpty() && !haTomadoMuerto){
             this.tomoMuerto();
         }
@@ -97,9 +119,6 @@ public class Jugador implements IJugador, Serializable {
     // metodos para los juegos bajados
 
     public void bajarJuego(ArrayList<Carta> juego){
-        for(Carta carta : juego){
-            this.atril.remove(carta);
-        }
         this.juegosBajados.add(juego);
     }
 

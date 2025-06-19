@@ -49,6 +49,7 @@ public class VistaConsola implements IVista {
                 mostrarMenuConfiguracion();
                 break;
             case TURNO_JUGADOR:
+            case JUEGO_BAJADO:
                 mostrarMenuJuego();
                 break;
             case PARTIDA_TERMINADA:
@@ -86,6 +87,25 @@ public class VistaConsola implements IVista {
             System.out.println("2. Tomar carta del pozo");
             System.out.println("3. Tomar todo el pozo");
         }
+        System.out.println("4. Bajar juego");
+        System.out.println("5. Apoyar carta");
+        System.out.println("6. Descartar carta");
+        System.out.println("7. Ver juegos bajados");
+        System.out.println("0. Salir");
+        System.out.print("\n Elegir opción: ");
+    }
+
+    private void mostrarMenuJuegoDespuesDeBajar(){
+        IJugador jugadorActual = controlador.getJugadorActual();
+
+        limpiarPantalla();
+
+
+        mostrarCartasJugador(jugadorActual);
+        mostrarEstadoJuego();
+
+        System.out.println("\nOpciones:");
+
         System.out.println("4. Bajar juego");
         System.out.println("5. Apoyar carta");
         System.out.println("6. Descartar carta");
@@ -150,6 +170,7 @@ public class VistaConsola implements IVista {
                     procesarMenuConfiguracion(opcion);
                     break;
                 case TURNO_JUGADOR:
+                case JUEGO_BAJADO:
                     procesarMenuJuego(opcion);
                     break;
                 case PARTIDA_TERMINADA:
@@ -160,7 +181,7 @@ public class VistaConsola implements IVista {
             }
         } catch (Exception e){
             System.out.println("Opción inválida. Intenta de nuevo");
-            scanner.nextLine(); //limpiar el buffer
+            scanner.nextLine();
         }
     }
 
@@ -289,16 +310,15 @@ public class VistaConsola implements IVista {
             if (controlador.puedeBajarJuego(cartasSeleccionadas)) {
                 controlador.bajarJuego(cartasSeleccionadas);
                 System.out.println("✅ Juego bajado exitosamente!");
-                Thread.sleep(500);
             } else {
                 System.out.println("❌ Las cartas seleccionadas no forman un juego válido.");
                 System.out.println("Verifica que sea una escalera (consecutivas mismo color) o pierna (mismo número).");
             }
 
         } catch (NumberFormatException e) {
-            System.out.println("❌ Formato inválido. Usa números separados por espacios.");
+            System.out.println("Error. Usa números separados por espacios.");
         } catch (Exception e) {
-            System.out.println("❌ Error: " + e.getMessage());
+            System.out.println("Error: " + e.getMessage());
         }
     }
 

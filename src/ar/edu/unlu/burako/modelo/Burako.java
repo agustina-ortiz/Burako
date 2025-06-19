@@ -195,15 +195,15 @@ public class Burako extends ObservableRemoto implements IBurako {
 
     @Override
     public void bajarJuego(ICarta[] cartas) throws RemoteException {
-        if (!puedeBajarJuego(cartas)){
+        if (!puedeBajarJuego(cartas)) {
             return;
         }
         Jugador jugadorActual = jugadores.get(jugadorActualIndex);
         ArrayList<Carta> juego = new ArrayList<>();
 
         //casteo ICarta a Carta y las saco del atril
-        for (ICarta carta : cartas){
-            Carta cartaReal = (Carta)carta;
+        for (ICarta carta : cartas) {
+            Carta cartaReal = (Carta) carta;
             juego.add(cartaReal);
             jugadorActual.sacarCarta(cartaReal);
         }
@@ -217,30 +217,72 @@ public class Burako extends ObservableRemoto implements IBurako {
         if(cartas.length < 3){
             return false;
         }
-        //TODO implementar validacion completa de escalera
+        ArrayList<ICarta> cartasNormales = new ArrayList<>();
+        int comodines = 0;
 
-        //valido que sean del mismo color
-        Color color = cartas[0].getColor();
-        for (ICarta carta : cartas){
-            if(carta.getColor() != color && !carta.esComodin()){
+        for (ICarta carta : cartas) {
+            if (carta.esComodin()) {
+                comodines++;
+            } else {
+                cartasNormales.add(carta);
+            }
+        }
+
+        // Verificar mismo color en cartas normales
+        Color color = cartasNormales.get(0).getColor();
+        for (ICarta carta : cartasNormales) {
+            if (!carta.getColor().equals(color)) {
                 return false;
             }
         }
-        return true;
+
+        // Obtener números y ordenarlos
+        ArrayList<Integer> numeros = new ArrayList<>();
+        for (ICarta carta : cartasNormales) {
+            numeros.add(carta.getNumero());
+        }
+        numeros.sort(Integer::compareTo);
+
+        // Verificar que no haya números repetidos
+        for (int i = 1; i < numeros.size(); i++) {
+            if (numeros.get(i).equals(numeros.get(i-1))) {
+                return false; // Números repetidos no válidos en escalera
+            }
+        }
+
+        // Calcular huecos en la secuencia
+        int huecos = 0;
+        for (int i = 1; i < numeros.size(); i++) {
+            huecos += (numeros.get(i) - numeros.get(i-1) - 1);
+        }
+
+        // Verificar si los comodines pueden completar la secuencia
+        int secuenciaActual = numeros.get(numeros.size()-1) - numeros.get(0) + 1;
+        int cartasFaltantes = secuenciaActual - cartasNormales.size();
+
+        return cartasFaltantes <= comodines;
     }
 
     private boolean esPiernaValida(ICarta[] cartas){
         if(cartas.length < 3){
             return false;
         }
-        // TODO: Implementar validación completa de pierna
-        // Por ahora, simple validación de que sean del mismo número
-        int numero = cartas[0].getNumero();
-        for (ICarta carta : cartas){
-            if (carta.getNumero() != numero && !carta.esComodin()){
+        // Encontrar el número base (primera carta que no sea comodín)
+        int numeroBase = -1;
+        for (ICarta carta : cartas) {
+            if (!carta.esComodin()) {
+                numeroBase = carta.getNumero();
+                break;
+            }
+        }
+
+        // Verificar que todas las cartas normales tengan el mismo número
+        for (ICarta carta : cartas) {
+            if (!carta.esComodin() && carta.getNumero() != numeroBase) {
                 return false;
             }
         }
+
         return true;
     }
 
